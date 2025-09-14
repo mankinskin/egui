@@ -1453,14 +1453,16 @@ impl Ui {
         id
     }
 
+    /// Access the [`Placer`]` of this [`Ui`]`.
     pub(crate) fn placer(&self) -> &Placer {
         &self.placer
     }
-
+    /// Get the current cursor position and size.
     pub fn cursor(&self) -> Rect {
         self.placer.cursor()
     }
 
+    /// Set the current cursor position and size.
     pub fn set_cursor(&mut self, cursor: Rect) {
         self.placer.set_cursor(cursor);
     }
