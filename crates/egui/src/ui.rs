@@ -1453,25 +1453,17 @@ impl Ui {
         id
     }
 
+    /// Access the [`Placer`]` of this [`Ui`]`.
     pub(crate) fn placer(&self) -> &Placer {
         &self.placer
     }
-
-    /// Where the next widget will be put.
-    ///
-    /// One side of this will always be infinite: the direction in which new widgets will be added.
-    /// The opposing side is what is incremented.
-    /// The crossing sides are initialized to `max_rect`.
-    ///
-    /// So one can think of `cursor` as a constraint on the available region.
-    ///
-    /// If something has already been added, this will point to `style.spacing.item_spacing` beyond the latest child.
-    /// The cursor can thus be `style.spacing.item_spacing` pixels outside of the `min_rect`.
+    /// Get the current cursor position and size.
     pub fn cursor(&self) -> Rect {
         self.placer.cursor()
     }
 
-    pub(crate) fn set_cursor(&mut self, cursor: Rect) {
+    /// Set the current cursor position and size.
+    pub fn set_cursor(&mut self, cursor: Rect) {
         self.placer.set_cursor(cursor);
     }
 
