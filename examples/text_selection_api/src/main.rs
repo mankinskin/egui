@@ -36,14 +36,13 @@ impl eframe::App for SelectionCursorDemo {
         _frame: &mut eframe::Frame,
     ) {
         egui::CentralPanel::default().show(ctx, |ui| {
-            ui.heading("Galley-Free Text Selection Cursor API Demo");
+            ui.heading("Text Selection Cursor API Demo");
             ui.separator();
 
             ui.label("Select text in the labels below to see cursor information:");
-            ui.label("This demo demonstrates the efficient galley-free API!");
+            ui.label("This demo demonstrates the API!");
             ui.separator();
 
-            // Create some selectable labels
             let label_texts = [
                 "This is the first selectable label",
                 "And this is the second one",
@@ -52,39 +51,33 @@ impl eframe::App for SelectionCursorDemo {
 
             ui.separator();
 
-            // Show cursor information using the galley-free API
             ui.label("Selection Information:");
 
-            // Demonstrate the galley-free API - no galley creation needed!
-            let responses: Option<Vec<_>> = label_texts.iter().map(|text| {
-                    ui.add(egui::Label::new(*text).selectable(true))
-                }).enumerate()
-                .filter_map(|(i, r)| {
-                    r.has_text_selection().then(|| {
-                        Some((i, r.selected_cursor_range(), r.selected_char_range(), r.selected_text()))
-                    })
+            let responses: Vec<_> = label_texts.iter().map(|text| {
+                    ui.label(*text)
                 })
                 .collect();
-            if let Some(responses) = responses {
-                for (i, cursor_range, char_range, selected_text) in responses {
-                    let label_num = i + 1;
-                    ui.label(format!("Label {label_num}:"));
-                    // Check each label - using galley-free API
-                    if let Some(cursor_range) = cursor_range {
-                        ui.label(format!("  • Primary cursor: {}, Secondary cursor: {}",
-                            cursor_range.primary.index, cursor_range.secondary.index));
-                        //ui.label(format!("  • Is partial selection: {}, Type: {:?}",
-                        //    cursor_range.is_partial(), cursor_range.partial_side));
-                    }
+            let any_selected = responses.iter().enumerate().fold(false, |acc, (i, r)| {
+                    if r.has_text_selection() {
+                        let label_num = i + 1;
+                        ui.label(format!("Label {label_num}:"));
+                        if let Some(cursor_range) = r.selected_cursor_range() {
+                            ui.label(format!("  • Primary cursor: {}, Secondary cursor: {}",
+                                cursor_range.primary.index, cursor_range.secondary.index));
+                        }
 
-                    if let Some(char_range) = char_range {
-                        ui.label(format!("  • Character range: {}..{}", char_range.start, char_range.end));
+                        if let Some(char_range) = r.selected_char_range() {
+                            ui.label(format!("  • Character range: {}..{}", char_range.start, char_range.end));
+                        }
+                        if let Some(selected_text) = r.selected_text() {
+                            ui.label(format!("  • Selected text: '{selected_text}'"));
+                        }
+                        true
+                    } else {
+                        acc
                     }
-                    if let Some(selected_text) = selected_text {
-                        ui.label(format!("  • Selected text: '{selected_text}'"));
-                    }
-                }
-            } else {
+                });
+            if !any_selected {
                 ui.label("Select some text to see cursor information");
             }
 
@@ -95,9 +88,6 @@ impl eframe::App for SelectionCursorDemo {
             ui.label("• The primary cursor shows where selection ended");
             ui.label("• The secondary cursor shows where selection started");
             ui.label("• Partial selection types: Start (extends to end), End (extends from beginning)");
-            ui.label("• This demo uses NO galleys - everything is galley-free!");
-            ui.label("• Character ranges work without galleys for complete selections");
-            ui.label("• Selected text can be extracted without galleys and without parameters!");
         });
     }
 }
